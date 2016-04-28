@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Escher Parkour - Seleção</title>
+	<meta charset="UTF-8"/>
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Source+Code+Pro:300' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="styles.css">
+	<script src="utils.js"></script>
+	<script src="sort.js"></script>
+</head>
+<body>
+	<header id="main-header">
+		<h1 id="main-title">ESCHER <b>PARKOUR</b></h1>
+	</header>
+	<div class="outer">
+		<div class="inner">
+			<div class="center">
+				<h1 id="generator" class="noselect" onclick="generate();"></h1>
+			</div>
+		</div>
+	</div>
+	<script>
+		state = 0;
+		var times = 0;
+		var nextName = Utils.getRandomItem(sortNames);
+		function generate () {
+			var n = "";
+			if (state === 0) {
+				writeString(nextName, 'generator');
+				state = 1;
+			} else if (state === 1) {
+				nextName = Utils.getRandomItem(sortNames);
+				unwriteString("generator", function(){
+					randomize("generator");
+				});
+				state = 0;
+			}
+		}
+		var heartbeat = null;
+		function randomize (id) {
+			if (heartbeat === null) {
+				var element = document.getElementById(id),
+					str,
+					crazyChars = "!@#$^€‡±*π2ßΩ∆:()‰ø";
+				heartbeat = setInterval(function(){
+					str = "";
+
+					var len = element.innerHTML.length;
+					var nChars = len < nextName.length ? len + 1 : len - 1;
+					if (len === nextName.length) nChars = nextName.length;
+
+					for (var i = 0; i < nChars; ++i) {
+						str += Utils.getRandomItem(crazyChars);
+					}
+					element.innerHTML = str;
+				}, 1000 / 10);
+			}
+		}
+		randomize("generator");
+
+		function unwriteString(id, callback) {
+			if (heartbeat !== null) { clearInterval(heartbeat); }
+
+			var element = document.getElementById(id),
+				len = element.innerHTML.length,
+				crazyChars = "!@#$^€‡±*π2ßΩ∆:()‰ø",
+				iteration = 0, str = "";
+
+			heartbeat = setInterval(function(){
+				str = element.innerHTML.slice(iteration + 1, len);
+				for(var i = 0; i < iteration + 1; ++i) {
+					var n = Utils.getRandomInt(0, crazyChars.length - 1);
+					str = crazyChars[n].concat(str);
+				}
+				element.innerHTML = str;
+				++iteration;
+				if (iteration > len - 1) {
+					clearInterval(heartbeat);
+					heartbeat = null;
+					if (callback) callback();
+				}
+			}, 1000 / 10);
+		}
+
+		function writeString(string, id) {
+			if (heartbeat !== null) clearInterval(heartbeat);
+			var element = document.getElementById(id),
+				name = string,
+				crazyChars = "!@#$^€‡±*π2ßΩ∆:()‰ø",
+				iteration = 0;
+			heartbeat = setInterval(function(){
+				var result = name.slice(0, iteration + 1), len = result.length;
+				for (var i = 0; i < name.length - len; ++i) {
+					result += Utils.getRandomItem(crazyChars);
+				}
+				element.innerHTML = result;
+				++iteration;
+				if (iteration > name.length) {
+					clearInterval(heartbeat);
+					heartbeat = null;
+				}
+			}, 1000 / 10);
+		}
+	</script>
+</body>
+</html>
